@@ -1,0 +1,158 @@
+#-----------------------------------------------------
+# Puerto del aplicativo
+#-----------------------------------------------------
+server:
+  port: 8082
+
+#-----------------------------------------------------
+# Configuracion de datasource oracle - redis
+#-----------------------------------------------------
+spring:
+  application:
+    name: INTRAMX-APPEB-SSO_REPAL
+  datasource:
+    url: jdbc:oracle:thin:@107.119.164.113:1660:odmxrep1
+    #driver-class-name: oracle.jdbc.driver.OracleDriver
+    driver-class-oracle.jdbc.driver: OracleDriver
+    initialization-mode: never
+    username: deifrepa
+    password: V4yBF#fSot
+  redis:
+    host: srrdcdlo21mxg01.ilm.dev.mx.corp
+    password: R3d1s_c1B_D3V
+    port: 6379
+    timeout: 10000
+    socket-timeout: 10000
+    maxtotal: 25
+    maxidle: 20
+    minidle: 10
+    maxwaitmillis: 1000
+    client-name: redis-11999
+    enterprise:
+      enabled: true 
+      tls: TLSv1.2
+    jks:
+      route: /etc/gateway/keystore/keystoreredis.jks
+      password: redisREPAL2021
+  
+#----------------------------------------------------      
+# DETALLES DE LOGGING PARA ARCHIVOS Y NIVELES DE ERROR
+#----------------------------------------------------
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG
+    org.springframework.jdbc.core.StatementCreatorUtils: INFO
+    mx.santander: DEBUG
+    
+#-----------------------------------------------------      
+# Configuracion de Histryx
+#-----------------------------------------------------
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 8000
+    
+#-----------------------------------------------------
+# Configuraciones de PID - logadapter
+#-----------------------------------------------------
+logadapter:
+    logconsole:
+        level: INFO
+    logsystem:
+        level: INFO
+    logservice:
+        amq:
+            url: tcp://mx-repal-local-amq-service-amq-tcp:61616
+            queue: mx-repal-dev-queue
+            security:
+              authorization: dXNybHNtcTpCcjBrM3JMMGdTM3J2MWMzNG1R
+        ws:
+            url: https://mx-repal-logservice-mx-repal-dev.appls.mex01.mex.dev.mx1.paas.cloudcenter.corp/selectorLogService
+        adapters:
+            audit:
+                canalprimario: AMQ
+                canalcontingente: REST
+            business:
+                canalprimario: AMQ
+                canalcontingente: REST
+    worker-config:
+        id-organizacion-estatica: 50011032_REPAL_REPOSITORY
+        worker-class: mx.isban.repal.usuarios.perfiles.utils.LogAdapterExtractorAPI  
+
+#-----------------------------------------------------
+# Seguridad para MS 
+#-----------------------------------------------------
+app:
+  security:
+    #Habilita o deshabilita la seguridad del MS
+    securityInterceptorEnable: true
+    #Habilita o deshabilita el perfilamiento
+    securityPerfilamientoEnable: false
+    excludePaths: /health
+    #Falta el appId de repal - en solicitud  
+  appId: INTRAMX-APPEB-SSO_REPAL
+  separadorCookie: "#"  
+  versionCookie: 1.0
+  emisorCookie: SANTEC_MX
+  secure-random: SHA1PRNG   
+tiempos:
+  # Tiempo en segundos que dura la sesion
+  sesion: 600 #180
+  cookie:
+    # Vigencia de la cookie en segundos
+    validez: 600 #180
+    # Tiempo en segundos en que se regenerara la cookie, se recomienda que sea inferior al periodo de validez
+    regeneracion: 180 #300
+
+#----------------------------------------------------- 
+# CONFIGURACION PARA COMPONENTE CODES
+#-----------------------------------------------------
+codes:
+  app: MXDD
+  modulo: MXDDFSEG
+
+#-----------------------------------------------------
+# SQL / QUERIES
+#-----------------------------------------------------
+params:
+  query:
+    modulo:
+      - SELECT ID_MODULO_PK IDENTIFICADOR, TXT_NOMBRE NOMBRE FROM RPL_MX_MAE_MODULO ORDER BY ID_MODULO_PK ASC
+    subModulo:
+      - SELECT ID_SUBMODULO_PK IDENTIFICADOR, TXT_NOMBRE NOMBRE, TXT_DESCRIPCION DESCRIPCION, ID_MODULO_FK MODULO FROM RPL_MX_MAE_SUB_MODULO ORDER BY ID_SUBMODULO_PK ASC
+      - SELECT ID_SUBMODULO_PK IDENTIFICADOR, TXT_NOMBRE NOMBRE, TXT_DESCRIPCION DESCRIPCION, ID_MODULO_FK MODULO FROM RPL_MX_MAE_SUB_MODULO WHERE ID_MODULO_FK = ? ORDER BY ID_SUBMODULO_PK ASC
+      - SELECT DISTINCT RSM.ID_SUBMODULO_PK IDENTIFICADOR, RSM.TXT_NOMBRE NOMBRE, RSM.TXT_DESCRIPCION DESCRIPCION, RSM.ID_MODULO_FK MODULO FROM RPL_MX_MAE_SUB_MODULO RSM INNER JOIN RPL_MX_REL_PERFILAMIENTO RP ON (RSM.ID_SUBMODULO_PK = RP.ID_SUBMODULO_FK) WHERE RP.ID_PERFIL_FK = ? AND RP.ID_MODULO_FK = ? ORDER BY RSM.ID_SUBMODULO_PK
+    accion:
+      - SELECT ID_ACCION_PK IDENTIFICADOR, DSC_NOMBRE NOMBRE, 0 CHECKED FROM RPL_MX_MAE_ACCION ORDER BY ID_ACCION_PK ASC
+      - SELECT RA.ID_ACCION_PK IDENTIFICADOR, RA.DSC_NOMBRE NOMBRE, 0 CHECKED FROM RPL_MX_MAE_ACCION RA INNER JOIN RPL_MX_REL_SUBMODULO_ACCION RSA ON (RA.ID_ACCION_PK=RSA.ID_ACCION_FK) WHERE RSA.ID_SUBMODULO_FK = ? ORDER BY RA.ID_ACCION_PK ASC
+      - SELECT RA.ID_ACCION_PK IDENTIFICADOR, RA.DSC_NOMBRE NOMBRE, (CASE WHEN (SELECT COUNT(ID_ACCION_FK) FROM RPL_MX_REL_PERFILAMIENTO WHERE ID_ACCION_FK = RA.ID_ACCION_PK AND ID_SUBMODULO_FK = ? AND ID_MODULO_FK = ? AND ID_PERFIL_FK = ?) > 0 THEN 1 ELSE 0 END) CHECKED FROM RPL_MX_MAE_ACCION RA INNER JOIN RPL_MX_REL_SUBMODULO_ACCION RSA ON (RA.ID_ACCION_PK = RSA.ID_ACCION_FK) WHERE RSA.ID_SUBMODULO_FK = ? ORDER BY RA.ID_ACCION_PK ASC
+    perfilamiento:
+      - SELECT DISTINCT RM.ID_MODULO_PK IDENTIFICADOR, RM.TXT_NOMBRE NOMBRE FROM RPL_MX_MAE_MODULO RM INNER JOIN RPL_MX_REL_PERFILAMIENTO RP ON (RP.ID_MODULO_FK = RM.ID_MODULO_PK) WHERE ID_PERFIL_FK = ? ORDER BY RM.ID_MODULO_PK
+      - SELECT DISTINCT RSM.ID_SUBMODULO_PK IDENTIFICADOR, RSM.TXT_NOMBRE NOMBRE, RSM.TXT_DESCRIPCION DESCRIPCION, RSM.ID_MODULO_FK MODULO FROM RPL_MX_MAE_SUB_MODULO RSM INNER JOIN RPL_MX_REL_PERFILAMIENTO RP ON (RSM.ID_SUBMODULO_PK = RP.ID_SUBMODULO_FK) WHERE RP.ID_PERFIL_FK = ? AND RP.ID_MODULO_FK = ? ORDER BY RSM.ID_SUBMODULO_PK
+      - SELECT DISTINCT RA.ID_ACCION_PK IDENTIFICADOR, RA.DSC_NOMBRE NOMBRE, 1 CHECKED FROM RPL_MX_MAE_ACCION RA INNER JOIN RPL_MX_REL_PERFILAMIENTO RP ON (RA.ID_ACCION_PK = RP.ID_ACCION_FK) WHERE RP.ID_PERFIL_FK = ? AND RP.ID_SUBMODULO_FK = ? ORDER BY RA.ID_ACCION_PK
+    usuario:
+      - SELECT RU.ID_USUARIO_PK INDENTIFICADOR, RU.ID_PERFIL_FK INDENTIFICADOR_PERFIL, RU.TXT_USER_NAME USUARIO, TO_CHAR(RU.FCH_ULTIMO_ACCESO, 'DD/MM/YYYY HH24:MI:SS') FCH_ULTIMO_ACCESO, RP.TXT_NOMBRE_PERFIL PERFIL FROM RPL_MX_MAE_USUARIO RU INNER JOIN RPL_MX_MAE_PERFIL RP ON RU.ID_PERFIL_FK = RP.ID_PERFIL_PK ORDER BY RU.TXT_USER_NAME ASC
+      - SELECT RU.ID_USUARIO_PK INDENTIFICADOR, RU.ID_PERFIL_FK INDENTIFICADOR_PERFIL, RU.TXT_USER_NAME USUARIO, TO_CHAR(RU.FCH_ULTIMO_ACCESO, 'DD/MM/YYYY HH24:MI:SS') FCH_ULTIMO_ACCESO, RP.TXT_NOMBRE_PERFIL PERFIL FROM RPL_MX_MAE_USUARIO RU INNER JOIN RPL_MX_MAE_PERFIL RP ON RU.ID_PERFIL_FK = RP.ID_PERFIL_PK WHERE RU.ID_USUARIO_PK = ?
+      - SELECT COUNT(*) FROM RPL_MX_MAE_USUARIO  WHERE UPPER(TXT_USER_NAME) = UPPER(?)
+      - INSERT INTO RPL_MX_MAE_USUARIO (ID_USUARIO_PK, TXT_USER_NAME, ID_PERFIL_FK) VALUES ((SELECT NVL(MAX(ID_USUARIO_PK),0) + 1 from RPL_MX_MAE_USUARIO), LOWER(?), ?)
+      - UPDATE RPL_MX_MAE_USUARIO SET TXT_USER_NAME = ?, ID_PERFIL_FK = ? WHERE ID_USUARIO_PK = ?
+      - DELETE FROM RPL_MX_MAE_USUARIO WHERE ID_USUARIO_PK = ?
+      - SELECT RU.ID_USUARIO_PK INDENTIFICADOR, RU.ID_PERFIL_FK INDENTIFICADOR_PERFIL, RU.TXT_USER_NAME USUARIO, TO_CHAR(RU.FCH_ULTIMO_ACCESO, 'DD/MM/YYYY HH24:MI:SS') FCH_ULTIMO_ACCESO, RP.TXT_NOMBRE_PERFIL PERFIL FROM RPL_MX_MAE_USUARIO RU INNER JOIN RPL_MX_MAE_PERFIL RP ON RU.ID_PERFIL_FK = RP.ID_PERFIL_PK WHERE RU.TXT_USER_NAME = ?
+    perfil:
+      - SELECT ID_PERFIL_PK IDENTIFICADOR, TXT_NOMBRE_PERFIL NOMBRE,  TXT_DESCRIPCION DESCRIPCION FROM RPL_MX_MAE_PERFIL WHERE ((ID_PERFIL_PK = ? ) OR (? = 0) ) ORDER BY TXT_NOMBRE_PERFIL ASC
+      - DELETE RPL_MX_MAE_PERFIL WHERE ID_PERFIL_PK = ?
+      - UPDATE RPL_MX_MAE_PERFIL SET TXT_DESCRIPCION = UPPER(?) WHERE ID_PERFIL_PK = ?
+      - INSERT INTO RPL_MX_MAE_PERFIL (ID_PERFIL_PK, TXT_NOMBRE_PERFIL, TXT_DESCRIPCION) VALUES (?, UPPER(?), UPPER(?))
+      - SELECT NVL(MAX(ID_PERFIL_PK),0) + 1 from RPL_MX_MAE_PERFIL
+      - SELECT COUNT(ID_PERFIL_PK) FROM RPL_MX_MAE_PERFIL WHERE UPPER(TXT_NOMBRE_PERFIL) = UPPER(?) ORDER BY ID_PERFIL_PK ASC
+    permisos:
+      - DELETE FROM RPL_MX_REL_PERFILAMIENTO WHERE ID_PERFIL_FK = ?
+      - INSERT INTO RPL_MX_REL_PERFILAMIENTO (ID_PERFILAMIENTO_PK, ID_MODULO_FK, ID_SUBMODULO_FK, ID_ACCION_FK, ID_PERFIL_FK) VALUES (?, ?, ?, ?, ?)
+      - SELECT ID_ACCION_FK IDENTIFICADOR, ID_SUBMODULO_FK MODULO from RPL_MX_REL_PERFIL_MODULO where ID_PERFIL_FK = ?
+      - SELECT RPF.ID_MODULO_FK||RPF.ID_SUBMODULO_FK||RPF.ID_ACCION_FK FROM RPL_MX_REL_PERFILAMIENTO RPF INNER JOIN RPL_MX_MAE_PERFIL RP ON (RPF.ID_PERFIL_FK=RP.ID_PERFIL_PK) WHERE ID_PERFIL_FK = ? ORDER BY RPF.ID_ACCION_FK
+      - SELECT NVL(MAX(ID_PERFILAMIENTO_PK),0) + 1 from RPL_MX_REL_PERFILAMIENTO 

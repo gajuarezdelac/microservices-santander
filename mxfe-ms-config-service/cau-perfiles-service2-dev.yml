@@ -1,0 +1,118 @@
+server.servlet.context-path: /perfiles-service
+spring:
+  application:
+    name: mxcu-ms-perfiles-service
+  main:
+    allow-circular-references: true
+#---------------------------------------
+#Configuraciones de Spring Sleuth
+#---------------------------------------
+  sleuth:
+    sampler:
+      probability: 1.0
+#---------------------------------------
+#Configuraciones de Spring Data JPA - Oracle
+#---------------------------------------
+  datasource: 
+    url: jdbc:oracle:thin:@104.192.6.36:49161:XE
+    username: pcau
+    password: pcau
+    driver-class-oracle.jdbc.driver: OracleDriver
+    dialect: org.hibernate.dialect.Oracle12cDialect
+    
+  jpa:
+    hibernate:
+      ddl-auto: none
+  redis:
+    enabled: false 
+
+app:
+  security:
+    client-oracle:
+      enabled: true
+    http-only: 
+      enabled: false
+    #Habilita o deshabilita la seguridad del MS
+    securityInterceptorEnable: false
+    #Habilita o deshabilita el perfilamiento
+    securityPerfilamientoEnable: false
+    excludePaths: /error;/actuator;/swagger-ui;/;
+  appId: INTRAMX-APPEB-SSO_GOLDEN_SOURCE
+  separadorCookie: "#"  
+  versionCookie: 1.0
+  emisorCookie: SANTEC_MX
+  secure-random: SHA1PRNG 
+tiempos:
+  # Tiempo en segundos que dura la sesion
+  sesion: 3600 #180
+  cookie:
+    # Vigencia de la cookie en segundos
+    validez: 3500 #180
+    # Tiempo en segundos en que se regenerara la cookie, se recomienda que sea inferior al periodo de validez
+    regeneracion: 3500 #150
+ 
+#CONFIGURACION PARA COMPONENTE CODES
+codes:
+  app: MXGS
+  modulo: MXGSSEG
+
+#---------------------------------------
+# Configuraciones de LogAdapter PID
+#---------------------------------------
+logadapter:
+  logservice:
+    adapters:
+      audit:
+        canalprimario: CONSOLA
+        canalcontingente: CONSOLA
+      business:
+        canalprimario: CONSOLA
+        canalcontingente: CONSOLA
+  worker-config:
+    id-organizacion-estatica: 50014194_INTRAMX-APPEB-SSO_GOLDEN_SOURCE
+    worker-class: mx.santander.gsrh.empleados.audit.LogAdapterExtractorAPI
+   
+
+mx:
+  santander:
+    pid:
+      logger:
+        config:
+          spring:
+            logger:
+              enableFineTrecertLog: true ## Para habilitar/deshabilitar log interno fino
+              enableTrecertLog: true ## Para habilitar/deshabilitar log interno fino
+
+
+#---------------------------------------
+# Configuraciones de logger
+#---------------------------------------
+logging:
+  level:
+    root: ERROR
+    mx:
+      santander:
+        gsrh: TRACE 
+        arquitecturatecnica: TRACE
+        pid: TRADE
+      santandertec: TRACE
+      santec: TRACE
+    org:
+      springframework:
+        web: DEBUG
+      hibernate: DEBUG
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n'
+
+
+#---------------------------------------
+# Configuraciones personalizadas del microservicio
+#---------------------------------------
+perfiles-service:
+  nombre-config: dev
+
+url:
+  url-origen: '*'
+  
+hibernate.jdbc.batch_size: 10000  
+hibernate.jdbc.fetch_size: 10000

@@ -1,0 +1,66 @@
+management:
+  health: 
+    redis:
+      enabled: false
+
+zuul:
+    host:
+      connect-timeout-millis: 15000
+      socket-timeout-millis: 15000
+    sensitiveHeaders:
+    routes:
+        #-------------------- Mapeo de Front Portal CAU
+        portal-cau-asuntos:
+          path: /**
+          url: http://portal-cau-asuntos:8080/#/
+        #  appendPrefix: false
+          stripPrefix: true
+        #--------------------- Mapeo de Servicios -------------------#
+        mxcu-security-auth:
+          path: /autenticacion/**
+          ignoreSecurityHeaders: false
+          #sensitiveHeaders: "Cookie,Set-Cookie,Authorization"
+          url: http://mxcu-security-auth:8080/
+          stripPrefix: false
+        mxcu-ms-asuntos-service:
+          path: /asuntos-service/**
+          url: http://mxcu-ms-asuntos-service:8080/
+          stripPrefix: false
+        mxcu-ms-autoayuda-service:
+          path: /autoayuda-service/**
+          url: http://mxcu-ms-autoayuda-service:8080/
+          stripPrefix: false
+        mxcu-ms-busquedas-service:
+          path: /busquedas-service/**
+          url: http://mxcu-ms-busquedas-service:8080/
+          stripPrefix: false
+        mxcu-ms-categorias-service:
+          path: /categorias-service/**
+          url: http://mxcu-ms-categorias-service:8080/
+          stripPrefix: false
+        mxcu-ms-centros-service:
+          path: /centros-service/**
+          url: http://mxcu-ms-centros-service:8080/
+          stripPrefix: false
+        mxcu-ms-perfiles-service:
+          path: /perfiles-service/**
+          url: http://mxcu-ms-perfiles-service:8080/
+          stripPrefix: false
+          
+    OAuth2Filter:
+        pre:
+            #Set to true in order to disable Access token validation
+            disable: true
+    AccessTokenFilter:
+        pre:
+            #Set to true in order to disable the OAuth security policy/filter (no Access token will be generated)
+            disable: true
+
+    #ignored-headers: Access-Control-Allow-Origin, X-Frame-Options, Access-Control-Allow-Credentials, Vary, Access-Control-Allow-Credentials
+    JwtFilter:
+       pre:
+         disable: true
+# Ribbon
+ribbon:
+   eureka:
+      enabled: true

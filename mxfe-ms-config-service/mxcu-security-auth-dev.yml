@@ -1,0 +1,252 @@
+spring:
+  application:
+    name: mxcu-security-auth
+#Basic Spring Boot Config for Oracle
+  datasource: 
+    url: jdbc:oracle:thin:@dbtfcdlo22mxr01.ilm.dev.mx.corp:1660:odmxtfc4
+    username: dehttfc4
+    password: Kjs#NvBk4#Pr1v
+    driver-class-name: oracle.jdbc.OracleDriver
+    connectionProperties: oracle.net.READ_TIMEOUT=5000;
+# ===============================
+# = JPA / HIBERNATE
+# ===============================
+# Show or not log for each sql query
+  jpa.show-sql: true
+# Naming strategy
+  jpa.hibernate.naming.implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl
+  jpa.hibernate.naming.physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+# Allows Hibernate to generate SQL optimized for a particular DBMS
+  jpa.properties.hibernate.dialect: org.hibernate.dialect.Oracle10gDialect
+#Datos redis
+  redis:
+    enabled: true
+    host: redismvsi.dev.mx.corp
+    password: R3d1s_MV_D3V
+    port: 11999
+    #host: mxob-redis
+    #port: 6379
+    timeout: 10000
+    socket-timeout: 10000
+    maxtotal: 50
+    maxidle: 25
+    minidle: 10
+    maxwaitmillis: 100000
+    client-name: redis-11999
+    enterprise:
+      enabled: true
+      tls: TLSv1.2
+    jks: 
+      route: /tmp/keystore/keystore-redis.jks
+      #route: /tmp/keystore
+      #password: rg%jy59*Rgt$4J"+
+      password: redismv
+
+
+ 
+## Valores para la aplicacion ###
+url:
+  #home: https://tfcln-ng-marco-mxtermfin1-dev.appls.mex01.mex.dev.mx1.paas.cloudcenter.corp/workspacemenu/
+  #home: https://tfcln-ng-marco-mxtermfin1-dev.appls.mex01.mex.dev.mx1.paas.cloudcenter.corp/workspacemenu/
+  portal: http://mejico.isban.dev.corp/LOGMEX_ENS/BtoChannelDriver.bto?dse_operationName=loginMEX
+  pistas: http://seg-ms-pistasauditoria:8080/auditoria/pistas
+  ws-resolver: https://srvprtbdvlmx01.dev.mx.corp:8443/ResolverWS/ResolverServices/ResolverServices.wsdl
+  sal: 
+    base: http://mejico.isban.dev.corp/POLBAN_S_ENS/BtoChannelDriver.ssobto
+    params: "dse_operationName=validaUsuario&token={}&entrada.appID={}&entrada.output=JSON"
+
+app:
+  appId: INTRAMX-APPEB-SSO_PORTAL-CAU
+  separadorCookie: "#"  
+  versionCookie: 1.0
+  emisorCookie: SANTEC_MX
+  secure-random: SHA1PRNG
+  #INTRAMX-APPEB-SSO_FIDEICOMISOS
+  #MXCU
+  #INTRAMX-PORTAL_ALHAMBRA
+  security:
+    securityPerfilamientoEnable: false
+security:
+  ignored: /configuration/ui, /error, /public/*, /swagger-ui.html, /webjars/**, /swagger-resources/**, /v2/api-docs/**, /configuration/security/**, /health, /images/**
+
+redis:
+  perfilamiento:
+    timeExpire: 36000  
+#CONFIGURACION PARA COMPONENTE CODES
+codes:
+  app: MXCU
+  modulo: MXCUSEG
+
+#Determina si la sesion se renueva y se cierran las anteriores o si se bloquea el acceso a la nueva porque ya existe una  
+renovar-sesion: true
+
+
+tiempos:
+  # Tiempo en segundos que dura la sesion
+  sesion: 36000 #180
+  cookie:
+    # Vigencia de la cookie en segundos
+    validez: 35000 #180
+    # Tiempo en segundos en que se regenerara la cookie, se recomienda que sea inferior al periodo de validez
+    regeneracion: 33000 #300
+
+perfilamiento:
+  consultas:
+    consultaPantallas: SELECT DISTINCT P.ID_PANT_PK, P.TXT_NOMB, P.TXT_CVE, P.DSC_DESC, P.TXT_URI, P.FLG_ACT, P.FCH_ULT_MOD FROM SEG_MX_PRC_PEFTO PFTO INNER JOIN SEG_MX_PRC_PANT P ON PFTO.ID_PANT_FK = P.ID_PANT_PK AND P.FLG_ACT = '1' AND PFTO.FLG_ACT = 1 INNER JOIN SEG_MX_PRC_MOD M ON PFTO.ID_MOD_FK = M.ID_MOD_PK AND M.FLG_ACT = '1' WHERE M.TXT_CVE =?
+    consultaAplicaciones: SELECT DISTINCT A.ID_APP_PK, A.TXT_NOMB, A.TXT_CVE, A.DSC_DESC, A.TXT_URI_HOME, A.TXT_URI_CTXT, A.FLG_ACT, A.FCH_ULT_MOD FROM SEG_MX_PRC_APP A INNER JOIN SEG_MX_PRC_PEFTO PEFTO ON A.ID_APP_PK = PEFTO.ID_APP_FK AND A.FLG_ACT = '1' AND PEFTO.FLG_ACT = 1 INNER JOIN SEG_MX_PRC_PERF P ON P.ID_PERF_PK = PEFTO.ID_PERF_FK AND P.FLG_ACT = '1' WHERE P.TXT_CVE =?  
+    consultaOperaciones: SELECT DISTINCT O.ID_OPER_PK, O.TXT_NOMB, O.TXT_CVE, O.DSC_DESC, O.TXT_URI, O.FLG_VIS, O.FLG_ENAB, O.FCH_ULT_MOD FROM SEG_MX_PRC_PEFTO PFTO INNER JOIN SEG_MX_PRC_MOD M ON PFTO.ID_MOD_FK = M.ID_MOD_PK AND M.FLG_ACT = '1' AND PFTO.FLG_ACT = 1 INNER JOIN SEG_MX_PRC_PERF PER ON PFTO.ID_PERF_FK = PER.ID_PERF_PK AND PER.FLG_ACT = '1' INNER JOIN SEG_MX_PRC_OPER O ON PFTO.ID_OPER_FK = O.ID_OPER_PK AND O.FLG_ACT = '1' LEFT JOIN SEG_MX_PRC_PANT P ON PFTO.ID_PANT_FK = P.ID_PANT_PK AND P.FLG_ACT = '1' WHERE ( :pantalla IS NULL OR P.TXT_CVE = :pantalla ) AND ( :modulo IS NULL OR M.TXT_CVE = :modulo ) AND ( :perfil IS NULL OR PER.TXT_CVE = :perfil )
+      
+    consultaPerfiles: > 
+          SELECT APP.TXT_CVE ID_CVE_APP, APP.DSC_DESC DESC_APP, APP.FCH_ULT_MOD FCH_ULT_MOD_APP, APP.ID_APP_PK, APP.TXT_NOMB TXT_NOMB_APP, 
+                 APP.TXT_URI_CTXT URI_CTXT_APP, APP.TXT_URI_HOME URI_HOME_APP, PFTO.COD_CNTR_COST, PFTO.COD_PSTO, PER.TXT_CVE ID_PERF, 
+                 PER.TXT_NOMB TXT_NOMB_PERF, PER.DSC_DESC DESC_PERF, PER.FCH_ULT_MOD FCH_ULT_MOD_PERF, M.ID_MOD_PK, M.DSC_DESC DSC_DESC_MOD, 
+                 M.TXT_NOMB TXT_NOMB_MOD, M.TXT_CVE, M.FCH_ULT_MOD FCH_ULT_MOD_MOD, M.ID_MOD_PAD_FK, M.ID_TIPO_MOD_FK, M.TXT_URI_FWD, 
+                 M.TXT_URI_HOME TXT_URI_HOME_MOD, O.TXT_CVE TXT_CVE_OPER, O.DSC_DESC DSC_DESC_OPER, O.FCH_ULT_MOD FCH_ULT_MOD_OPER, O.FLG_ENAB FLG_ENAB_OPER, 
+                 O.ID_OPER_PK, O.TXT_NOMB TXT_NOMB_OPER, O.TXT_URI TXT_URI_OPER, O.FLG_VIS FLG_VIS_OPER, P.ID_PANT_PK, P.TXT_CVE TXT_CVE_PANT, 
+                 P.DSC_DESC DSC_DESC_PANT, P.FCH_ULT_MOD FCH_ULT_MOD_PANT, P.TXT_NOMB TXT_NOMB_PANT, P.TXT_URI TXT_URI_PANT, TM.TXT_NOMB TXT_NOMB_TM, PFTO.FCH_ULT_MOD FCH_ULT_MOD_PEFTO
+          FROM SEG_MX_PRC_PEFTO PFTO
+              INNER JOIN SEG_MX_PRC_MOD M ON PFTO.ID_MOD_FK = M.ID_MOD_PK AND M.FLG_ACT = 1 AND PFTO.FLG_ACT = 1
+              INNER JOIN SEG_MX_AUX_TIPO_MOD TM ON M.ID_TIPO_MOD_FK = TM.ID_TIPO_MOD_PK
+              INNER JOIN SEG_MX_PRC_PERF PER ON PFTO.ID_PERF_FK = PER.ID_PERF_PK AND PER.FLG_ACT = 1
+              INNER JOIN SEG_MX_PRC_APP APP ON PFTO.ID_APP_FK = APP.ID_APP_PK AND APP.FLG_ACT = 1
+              LEFT JOIN SEG_MX_PRC_OPER O ON (PFTO.ID_OPER_FK = O.ID_OPER_PK)
+              LEFT JOIN SEG_MX_PRC_PANT P ON (PFTO.ID_PANT_FK = P.ID_PANT_PK)
+          WHERE
+              (
+                  :modulo IS NULL
+                  OR    M.TXT_CVE =:modulo
+              )
+              AND   (
+                  :aplicacion IS NULL
+                  OR    APP.TXT_CVE =:aplicacion
+              )
+              AND   (
+                  :centroCosto IS NULL
+                  OR    PFTO.COD_CNTR_COST =:centroCosto
+              )
+              AND   (
+                  :puesto IS NULL
+                  OR    PFTO.COD_PSTO =:puesto
+              )
+              AND   (
+                  :nombre IS NULL
+                  OR    M.TXT_NOMB =:nombre
+              )
+              AND NVL(O.FLG_ACT,1) = 1
+              AND NVL(P.FLG_ACT,1) = 1  
+      
+    unionPerfiles: >      
+      UNION       
+      SELECT APP.TXT_CVE ID_CVE_APP, APP.DSC_DESC DESC_APP, APP.FCH_ULT_MOD FCH_ULT_MOD_APP, APP.ID_APP_PK, APP.TXT_NOMB TXT_NOMB_APP, 
+      APP.TXT_URI_CTXT URI_CTXT_APP, APP.TXT_URI_HOME URI_HOME_APP, PFTO.COD_CNTR_COST, PFTO.COD_PSTO, PER.TXT_CVE ID_PERF, 
+      PER.TXT_NOMB TXT_NOMB_PERF, PER.DSC_DESC DESC_PERF, PER.FCH_ULT_MOD FCH_ULT_MOD_PERF, M.ID_MOD_PK, M.DSC_DESC DSC_DESC_MOD, 
+      M.TXT_NOMB TXT_NOMB_MOD, M.TXT_CVE, M.FCH_ULT_MOD FCH_ULT_MOD_MOD, M.ID_MOD_PAD_FK, M.ID_TIPO_MOD_FK, M.TXT_URI_FWD, 
+      M.TXT_URI_HOME TXT_URI_HOME_MOD, O.TXT_CVE TXT_CVE_OPER, O.DSC_DESC DSC_DESC_OPER, O.FCH_ULT_MOD FCH_ULT_MOD_OPER, 
+      O.FLG_ENAB FLG_ENAB_OPER, O.ID_OPER_PK, O.TXT_NOMB TXT_NOMB_OPER, O.TXT_URI TXT_URI_OPER, O.FLG_VIS FLG_VIS_OPER, 
+      P.ID_PANT_PK, P.TXT_CVE TXT_CVE_PANT, P.DSC_DESC DSC_DESC_PANT, P.FCH_ULT_MOD FCH_ULT_MOD_PANT, P.TXT_NOMB TXT_NOMB_PANT, P.TXT_URI TXT_URI_PANT, TM.TXT_NOMB TXT_NOMB_TM, PFTO.FCH_ULT_MOD FCH_ULT_MOD_PEFTO
+      FROM SEG_MX_PRC_PEFTO PFTO
+          INNER JOIN SEG_MX_PRC_MOD M ON PFTO.ID_MOD_FK = M.ID_MOD_PK AND M.FLG_ACT = 1 AND PFTO.FLG_ACT = 1
+          INNER JOIN SEG_MX_AUX_TIPO_MOD TM ON M.ID_TIPO_MOD_FK = TM.ID_TIPO_MOD_PK
+          INNER JOIN SEG_MX_PRC_PERF PER ON PFTO.ID_PERF_FK = PER.ID_PERF_PK AND PER.FLG_ACT = 1
+          INNER JOIN SEG_MX_PRC_APP APP ON PFTO.ID_APP_FK = APP.ID_APP_PK AND APP.FLG_ACT = 1
+          LEFT JOIN SEG_MX_PRC_OPER O ON PFTO.ID_OPER_FK = O.ID_OPER_PK
+          LEFT JOIN SEG_MX_PRC_PANT P ON PFTO.ID_PANT_FK = P.ID_PANT_PK
+      WHERE NVL(O.FLG_ACT,1) = 1
+          AND NVL(P.FLG_ACT,1) = 1  
+      START WITH
+          M.TXT_CVE = :subModulo
+      CONNECT BY
+          PRIOR M.ID_MOD_PK = M.ID_MOD_PAD_FK
+      
+    #el numero 3 corresponde al tipo de modulo input-html  
+    uris: > 
+            SELECT DISTINCT
+                    CASE
+                        WHEN TM.ID_TIPO_MOD_PK = 3 THEN CONCAT(NVL(M.TXT_URI_HOME,''),NVL(P.TXT_URI,'') )
+                        ELSE CONCAT(CONCAT(NVL(M.TXT_URI_HOME,''),NVL(P.TXT_URI,'') ),NVL(O.TXT_URI,'') )
+                    END
+                URI
+            FROM SEG_MX_PRC_PEFTO PFTO
+                INNER JOIN SEG_MX_PRC_PERF PER ON PFTO.ID_PERF_FK = PER.ID_PERF_PK AND PER.FLG_ACT = 1 AND PFTO.FLG_ACT = 1  
+                INNER JOIN SEG_MX_PRC_APP APP ON PFTO.ID_APP_FK = APP.ID_APP_PK AND APP.FLG_ACT = 1
+                INNER JOIN SEG_MX_PRC_MOD M ON PFTO.ID_MOD_FK = M.ID_MOD_PK AND M.FLG_ACT = 1
+                INNER JOIN SEG_MX_AUX_TIPO_MOD TM ON M.ID_TIPO_MOD_FK = TM.ID_TIPO_MOD_PK
+                LEFT JOIN SEG_MX_PRC_PANT P ON PFTO.ID_PANT_FK = P.ID_PANT_PK
+                LEFT JOIN SEG_MX_PRC_OPER O ON PFTO.ID_OPER_FK = O.ID_OPER_PK
+            WHERE NVL(O.FLG_ACT,1) = 1
+                AND NVL(P.FLG_ACT,1) = 1 
+                AND COD_CNTR_COST =?
+                AND COD_PSTO =?
+                AND APP.TXT_CVE =?
+
+template:
+  html: >
+    <div class="alert alert-danger">
+        <div><strong>Code: </strong> {}</div>
+        <div><strong>Message: </strong> {}</div>
+        <div><strong>Level: </strong> {}</div>
+        <div><strong>Description: </strong> {}</div>
+        <div><strong>More info: </strong> {}</div>
+    </div>   
+  btn-portal: >
+    <a href="{}" class="btn btn-primary" role="button">Ir a Portal</a>
+  css: >
+    <style>
+        .alert-danger {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+                border-top-color: transparent;
+                border-right-color: transparent;
+                border-bottom-color: transparent;
+                border-left-color: transparent;
+            border-radius: 4px;
+        }
+        .btn-primary {
+            color: #fff;
+            background-color: #337ab7;
+            border-color: #2e6da4;
+        }
+        .btn {
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+    </style>
+#DETALLES DE LOGGING PARA ARCHIVOS Y NIVELES DE ERROR#
+
+logging:
+  level:
+    root: WARN
+    mx.santandertec.redis: DEBUG
+    mx.santandertec.security: DEBUG
+    mx.santandertec: DEBUG
+    redis.clients: TRACE
+    mx.santec: DEBUG
+    org:
+      springframework:
+        web: DEBUG
+        hibernate: ERROR
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
