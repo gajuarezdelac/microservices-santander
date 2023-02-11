@@ -2,7 +2,7 @@ package mx.santander.pcau.regions.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties("microservice-one")
+@ConfigurationProperties("ms-regions-service")
 @org.springframework.context.annotation.Configuration
 public class Configuration {
 	
