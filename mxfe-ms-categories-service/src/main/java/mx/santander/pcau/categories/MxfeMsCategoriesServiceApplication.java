@@ -10,4 +10,5 @@ public class MxfeMsCategoriesServiceApplication {
 		SpringApplication.run(MxfeMsCategoriesServiceApplication.class, args);
 	}
 
+
 }
