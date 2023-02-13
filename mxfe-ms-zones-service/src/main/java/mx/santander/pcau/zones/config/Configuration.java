@@ -2,7 +2,7 @@ package mx.santander.pcau.zones.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties("microservice-one")
+@ConfigurationProperties("ms-zones-service")
 @org.springframework.context.annotation.Configuration
 public class Configuration {
 	

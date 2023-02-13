@@ -2,7 +2,7 @@ package mx.santander.pcau.forms.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties("microservice-one")
+@ConfigurationProperties("ms-form-service")
 @org.springframework.context.annotation.Configuration
 public class Configuration {
 	

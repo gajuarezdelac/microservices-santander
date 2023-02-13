@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author AdministradorAgo
  *
  */
-@ConfigurationProperties("microservice-one")
+@ConfigurationProperties("ms-categories-service")
 @org.springframework.context.annotation.Configuration
 public class Configuration {
 	
